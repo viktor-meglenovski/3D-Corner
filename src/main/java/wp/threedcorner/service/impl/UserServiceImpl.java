@@ -11,9 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import wp.threedcorner.repository.UserRepository;
 import wp.threedcorner.service.UserService;
+import wp.threedcorner.config.Constants;
+
+import java.io.File;
 
 @Service
 public class UserServiceImpl implements UserService {
+
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -38,6 +42,8 @@ public class UserServiceImpl implements UserService {
         if(this.userRepository.findByUsername(username).isPresent())
             throw new UsernameAlreadyExistsException(username);
         User user = new User(username,passwordEncoder.encode(password),name,surname,userRole);
+        File f=new File(Constants.rootPath+username);
+        f.mkdir();
         return userRepository.save(user);
     }
 }
