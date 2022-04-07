@@ -53,16 +53,16 @@ public class ProjectServiceImpl implements ProjectService {
         p.setSoftware(software);
 
         //create a new folder for the project
-        File f=new File(Constants.rootPath+username+"/"+p.getId());
+        File f=new File(Constants.userRootPath +username+"/"+p.getId());
         f.mkdir();
 
         //save main image
         try {
             byte[] bytes = new byte[0];
             bytes = mainImage.getBytes();
-            Path path = Paths.get(Constants.rootPath +username+"/"+p.getId()+"/"+ mainImage.getOriginalFilename());
+            Path path = Paths.get(Constants.userRootPath +username+"/"+p.getId()+"/"+ mainImage.getOriginalFilename());
             Files.write(path, bytes);
-            Image image=new Image(path.toString());
+            Image image=new Image("user_uploads/"+username+"/"+p.getId()+"/"+mainImage.getOriginalFilename());
             imageRepository.save(image);
             p.setMainImage(image);
         } catch (IOException e) {
@@ -74,9 +74,9 @@ public class ProjectServiceImpl implements ProjectService {
             try {
                 byte[] bytes = new byte[0];
                 bytes = file.getBytes();
-                Path path = Paths.get(Constants.rootPath +username+"/"+p.getId()+"/"+ file.getOriginalFilename());
+                Path path = Paths.get(Constants.userRootPath +username+"/"+p.getId()+"/"+ file.getOriginalFilename());
                 Files.write(path, bytes);
-                Image image=new Image(path.toString());
+                Image image=new Image("user_uploads/"+username+"/"+p.getId()+"/"+file.getOriginalFilename());
                 imageRepository.save(image);
                 p.getImages().add(image);
             } catch (IOException e) {
@@ -89,8 +89,49 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void editProject(Long projectId, String name, String description, Image mainImage, List<Image> images) {
+    public void editProject(Long projectId, String username,String name, String description, MultipartFile mainImage, List<MultipartFile> images,List<Software> software) {
         //todo - probably najkompliciran metod od site
+
+        Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
+        User u=userRepository.findByUsername(username).orElseThrow(UserDoesNotExistException::new);
+        if(p.getAuthor()!=u)
+            throw new NoAuthorityException();
+        p.setName(name);
+        p.setDescription(description);
+        p.setCreated(LocalDateTime.now());
+        //ova dali software samo ID ili celi objekti gi dava od front na back da se proveri
+        p.setSoftware(software);
+
+        //save main image
+        try {
+            byte[] bytes = new byte[0];
+            bytes = mainImage.getBytes();
+            Path path = Paths.get(Constants.userRootPath +username+"/"+p.getId()+"/"+ mainImage.getOriginalFilename());
+            Files.write(path, bytes);
+            Image image=new Image("user_uploads/"+username+"/"+p.getId()+"/"+mainImage.getOriginalFilename());
+            imageRepository.save(image);
+            p.setMainImage(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //save other images
+        for(MultipartFile file: images){
+            try {
+                byte[] bytes = new byte[0];
+                bytes = file.getBytes();
+                Path path = Paths.get(Constants.userRootPath +username+"/"+p.getId()+"/"+ file.getOriginalFilename());
+                Files.write(path, bytes);
+                Image image=new Image("user_uploads/"+username+"/"+p.getId()+"/"+file.getOriginalFilename());
+                imageRepository.save(image);
+                p.getImages().add(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //save project
+        projectRepository.save(p);
     }
 
     @Override
@@ -118,6 +159,21 @@ public class ProjectServiceImpl implements ProjectService {
         Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
         Comment c=new Comment(comment,LocalDateTime.now(),p,u);
         commentRepository.save(c);
+    }
+
+    @Override
+    public int getNumberOfLikes(Long projectId) {
+        Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
+        return p.getLikes().size();
+    }
+
+    @Override
+    public void deleteImage(Long projectId, Long imageId) {
+        Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
+        Image i=imageRepository.getById(imageId);
+        if(p.getImages().contains(i))
+            p.getImages().remove(i);
+        projectRepository.save(p);
     }
 
 

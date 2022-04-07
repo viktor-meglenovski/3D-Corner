@@ -1,0 +1,29 @@
+<div class="container" xmlns:th="http://www.thymeleaf.org">
+    <div class="row">
+        <div class="col-sm-6">
+            <h1 th:text="'@'+${user.getUsername()}"></h1>
+            <h1 th:text="${user.getName()}+' '+${user.getSurname()}">+</h1>
+            <img class="img-thumbnail" th:src="${user.getProfilePicture().getLocation()}"/>
+            <h3>Projects:</h3>
+            <h3>Likes:</h3>
+            <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
+        </div>
+        <div class="col-sm-6">
+            <h1>My Projects</h1>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Image</th>
+                    <th>Created on</th>
+                    <th>Likes</th>
+                    <th>View Edit Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <!--tuka vo tabela proektite so kopcinja se, ako nema nekoja poraka da se napisi-->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

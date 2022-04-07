@@ -23,13 +23,13 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping
+    @GetMapping("/create")
     public String getCreateProjectPage(Model model) {
         //da se dodadat softverite
         model.addAttribute("bodyContent", "home");
         return "master-template";
     }
-    @PostMapping
+    @PostMapping("/create")
     public String createProject(Model model,
                                 Principal principal,
                                 @RequestParam String name,
@@ -41,11 +41,30 @@ public class ProjectController {
         model.addAttribute("bodyContent", "home");
         return "master-template";
     }
-    @GetMapping
+    @GetMapping("/delete")
     public String deleteProject(Principal principal,
                                 @RequestParam Long projectId){
         projectService.deleteProject(projectId,principal.getName());
         //todo
+        return "master-template";
+    }
+    @GetMapping("/edit")
+    public String editProject(){
+        //todo
+        return "master-template";
+    }
+    @GetMapping("/like")
+    public int likeProject(Principal principal,
+                              @RequestParam Long projectId){
+        //ajax povik da bidi ova, da go vraka samo noviot broj na lajkovi ili site koi lajknale?
+        projectService.likeProject(projectId,principal.getName());
+        return projectService.getNumberOfLikes(projectId);
+    }
+    @PostMapping("/comment")
+    public String commentProject(Principal principal,
+                                 @RequestParam Long projectId,
+                                 @RequestParam String comment){
+        projectService.commentProject(projectId,principal.getName(),comment);
         return "master-template";
     }
 }

@@ -6,4 +6,5 @@ import wp.threedcorner.model.Image;
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image,Long> {
+    Image findByLocationContaining(String s);
 }

@@ -17,15 +17,13 @@ public class User implements UserDetails {
     @Id
     private String username;
 
-//    @Version
-//    private Long version;
-
     private String password;
 
     private String name;
 
     private String surname;
-
+    @ManyToOne
+    private Image profilePicture;
     private boolean isAccountNonExpired = true;
     private boolean isAccountNonLocked = true;
     private boolean isCredentialsNonExpired = true;
@@ -37,12 +35,13 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String username, String password, String name, String surname, Role role) {
+    public User(String username, String password, String name, String surname, Role role,Image profilePicture) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.surname = surname;
         this.role = role;
+        this.profilePicture=profilePicture;
     }
 
     @Override
