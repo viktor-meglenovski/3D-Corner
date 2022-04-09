@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -78,5 +79,10 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(u);
         return u;
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        return userRepository.findByRole(Role.ROLE_USER);
     }
 }

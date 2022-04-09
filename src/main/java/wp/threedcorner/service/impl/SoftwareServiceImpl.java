@@ -1,89 +1,70 @@
 package wp.threedcorner.service.impl;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wp.threedcorner.config.Constants;
 import wp.threedcorner.model.Image;
 import wp.threedcorner.model.Software;
-import wp.threedcorner.model.exceptions.NoAuthorityException;
-import wp.threedcorner.repository.ImageRepository;
+import wp.threedcorner.model.exceptions.SoftwareDoesNotExistException;
 import wp.threedcorner.repository.SoftwareRepository;
+import wp.threedcorner.service.ImageService;
 import wp.threedcorner.service.SoftwareService;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
+import java.util.List;
 
 @Service
 public class SoftwareServiceImpl implements SoftwareService {
     private final SoftwareRepository softwareRepository;
-    private final ImageRepository imageRepository;
-    public SoftwareServiceImpl(SoftwareRepository softwareRepository, ImageRepository imageRepository) {
+    private final ImageService imageService;
+
+    public SoftwareServiceImpl(SoftwareRepository softwareRepository, ImageService imageService) {
         this.softwareRepository = softwareRepository;
-        this.imageRepository = imageRepository;
+        this.imageService = imageService;
     }
 
     @Override
-    public void createSoftware(String username, MultipartFile logo, String name) {
-        Collection<SimpleGrantedAuthority> authorities = (Collection<SimpleGrantedAuthority>)
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if(authorities.contains("ROLE_ADMIN")){
-            Software s=new Software();
-            s.setName(name);
+    public List<Software> findAll() {
+        return softwareRepository.findAll();
+    }
 
-            //save logo
-            try {
-                byte[] bytes = new byte[0];
-                bytes = logo.getBytes();
-                Path path = Paths.get(Constants.adminRootPath +logo.getOriginalFilename());
-                Files.write(path, bytes);
-                Image image=new Image(path.toString());
-                imageRepository.save(image);
-                s.setLogo(image);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            softwareRepository.save(s);
+    @Override
+    public Software findById(Long id) {
+        return softwareRepository.findById(id).orElseThrow(()->new SoftwareDoesNotExistException());
+    }
+
+    @Override
+    public Software createSoftware(MultipartFile logo, String name) {
+        Software s=new Software();
+        s.setName(name);
+
+        Image image=imageService.saveImage(logo,
+                Constants.adminRootPath+"software/" +logo.getOriginalFilename(),
+                "/admin_uploads/software/"+logo.getOriginalFilename());
+        s.setLogo(image);
+
+        softwareRepository.save(s);
+        return s;
+    }
+
+    @Override
+    public Software editSoftware(Long softwareId, MultipartFile logo, String name) {
+        Software s=softwareRepository.getById(softwareId);
+        s.setName(name);
+        if(!logo.isEmpty()){
+            imageService.deletePhysicalImage(s.getLogo().getLocation());
+            Image image=imageService.saveImage(logo,
+                    Constants.adminRootPath+"software/" +logo.getOriginalFilename(),
+                    "/admin_uploads/software/"+logo.getOriginalFilename());
+            s.setLogo(image);
         }
-        else throw new NoAuthorityException();
+        softwareRepository.save(s);
+        return s;
     }
 
     @Override
-    public void editSoftware(String username, Long softwareId, MultipartFile logo, String name) {
-        Collection<SimpleGrantedAuthority> authorities = (Collection<SimpleGrantedAuthority>)
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if(authorities.contains("ROLE_ADMIN")){
-            Software s=softwareRepository.getById(softwareId);
-            s.setName(name);
-            if(logo!=null){
-                //dali fajlot od staroto logo ke se brisi?
-                try {
-                    byte[] bytes = new byte[0];
-                    bytes = logo.getBytes();
-                    Path path = Paths.get(Constants.adminRootPath +logo.getOriginalFilename());
-                    Files.write(path, bytes);
-                    Image image=new Image(path.toString());
-                    imageRepository.save(image);
-                    s.setLogo(image);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            softwareRepository.save(s);
-        }
-        else throw new NoAuthorityException();
-    }
-
-    @Override
-    public void deleteSoftware(String username, Long softwareId) {
-        Collection<SimpleGrantedAuthority> authorities = (Collection<SimpleGrantedAuthority>)
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if(authorities.contains("ROLE_ADMIN"))
-            softwareRepository.deleteById(softwareId);
-        else throw new NoAuthorityException();
+    public void deleteSoftware(Long softwareId) {
+        Software s=softwareRepository.getById(softwareId);
+        imageService.deletePhysicalImage(s.getLogo().getLocation());
+        softwareRepository.deleteById(softwareId);
     }
 }

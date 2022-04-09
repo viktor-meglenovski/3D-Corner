@@ -8,7 +8,5 @@ import wp.threedcorner.service.ImageService;
 public class Constants {
     public static final String userRootPath ="src//main//resources//static//user_uploads//";
     public static final String adminRootPath ="src//main//resources//static//admin_uploads//";
-    //public static final String defaultUserImage ="src//main//resources//admin_uploads//default-user-image.png";
-
-
+    public static final String rootPath="src//main//resources/static";
 }

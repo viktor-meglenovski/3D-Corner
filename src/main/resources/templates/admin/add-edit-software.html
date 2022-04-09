@@ -1,0 +1,24 @@
+<style>
+    .software-image{
+        width:150px;
+    }
+</style>
+
+<section class="text-center" xmlns:th="http://www.thymeleaf.org">
+    <div class="container col-xs-8 col-xl-6 border rounded mt-5 pb-3">
+        <form method="post" th:action="${isEdit==false ? '/admin/software/add':'/admin/software/edit/'+existing.getId()}" enctype="multipart/form-data">
+            <h1 class="h1 mt-3" th:if="${isEdit}" th:text="${'Edit Software: '+existing.getName()}"></h1>
+            <h1 class="h1 mt-3" th:if="${!isEdit}" th:text="${'Add Software'}"></h1>
+            <hr/>
+            <img class="software-image" th:if="${isEdit}" th:src="${existing.getLogo().getLocation()}">
+            <hr th:if="${isEdit}" />
+            <input type="file" class="btn btn-primary" id="logo" name="logo">Software Logo</input>
+            <div class="form-group text-left col-sm-6 offset-sm-3">
+                <label for="name">Name</label>
+                <input class="form-control" type="text" id="name" name="name" th:value="(${isEdit} ? ${existing.getName()} : '')">
+            </div>
+            <button type="submit" class="btn btn-success btn-lg btn-block col-sm-10 offset-sm-1" th:text="${isEdit? 'Save changes':'Create'}"></button>
+            <a href="/admin/software" class="btn btn-primary btn-lg btn-block col-sm-10 offset-sm-1">Back</a>
+        </form>
+    </div>
+</section>

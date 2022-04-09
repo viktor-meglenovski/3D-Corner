@@ -34,6 +34,8 @@ public class LoginController {
             user = this.authService.login(request.getParameter("username"),
                                         request.getParameter("password"));
             request.getSession().setAttribute("user", user);
+            if(user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN")))
+                return "redirect:/admin";
             return "redirect:/home";
         }
         catch (InvalidUserCredentialsException exception) {
