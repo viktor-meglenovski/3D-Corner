@@ -1,15 +1,26 @@
+<style>
+    .profile-image{
+        height:320px;
+    }
+    .project-image{
+        height:50px;
+    }
+</style>
+
 <div class="container" xmlns:th="http://www.thymeleaf.org">
-    <div class="row">
-        <div class="col-sm-6">
+    <div class="row border rounded mt-2 pb-3">
+        <div class="col-sm-6 text-center">
             <h1 th:text="'@'+${user.getUsername()}"></h1>
             <h1 th:text="${user.getName()}+' '+${user.getSurname()}">+</h1>
-            <img class="img-thumbnail" th:src="${user.getProfilePicture().getLocation()}"/>
-            <h3>Projects:</h3>
-            <h3>Likes:</h3>
-            <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
+            <img class="img-thumbnail profile-image" th:src="${user.getProfilePicture().getLocation()}"/>
+            <hr/>
+            <h3 class="text-left">Projects:</h3>
+            <h3 class="text-left">Likes:</h3>
+            <hr/>
+            <a href="/profile/edit" class="btn btn-primary btn-block btn-lg">Edit Profile</a>
         </div>
         <div class="col-sm-6">
-            <h1>My Projects</h1>
+            <h1 class="text-center">My Projects</h1>
             <table class="table">
                 <thead>
                 <tr>
@@ -21,9 +32,19 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <!--tuka vo tabela proektite so kopcinja se, ako nema nekoja poraka da se napisi-->
+                    <tr th:each="p:${projects}">
+                        <td th:text="${p.getName()}"></td>
+                        <td><img class="project-image" th:src="${p.getMainImage().getLocation()}"/></td>
+                        <td th:text="${p.getCreated()}"></td>
+                        <td th:text="${p.getLikes().size()}"></td>
+                        <td><a class="btn btn-primary btn-block" th:href="${'/project/view/'+p.getId()}">View</a>
+                            <a class="btn btn-secondary btn-block" th:href="${'/project/edit/'+p.getId()}">Edit</a>
+                            <a class="btn btn-danger btn-block" th:href="${'/project/delete/'+p.getId()}">Delete</a></td>
+                    </tr>
                 </tbody>
             </table>
+            <hr/>
+            <a href="/project/create" class="btn btn-success btn-block btn-lg">Create a new project</a>
         </div>
     </div>
 </div>

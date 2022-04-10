@@ -1,0 +1,64 @@
+<style>
+    .product-image {
+        width: 150px;
+    }
+    .other-images{
+        width:50px;
+    }
+</style>
+<section class="text-center" xmlns:th="http://www.thymeleaf.org">
+    <div class="container col-xs-8 col-xl-6 border rounded mt-5 pb-3">
+        <form method="post" th:action="${isEdit==false ? '/project/create':'/project/edit/'+existing.getId()}"
+              enctype="multipart/form-data">
+            <h1 class="h1 mt-3" th:if="${isEdit}" th:text="${'Edit project: '+existing.getName()}"></h1>
+            <h1 class="h1 mt-3" th:if="${!isEdit}" th:text="${'Create a new project'}"></h1>
+            <hr/>
+            <div class="row">
+
+                <div class="form-group text-left col-sm-6">
+                    <label for="name">Name</label>
+                    <input class="form-control mb-3" type="text" id="name" name="name"
+                           th:value="(${isEdit} ? ${existing.getName()} : '')" required>
+
+                    <label for="name">Description</label>
+                    <textarea class="form-control mb-3" id="description" name="description"
+                              th:value="(${isEdit} ? ${existing.getDescription()} : '')" required></textarea>
+
+                    <label for="software">Software used</label><br/>
+                    <select id="software" name="software" class="form-select" multiple required>
+                        <!-- For each category you should have one <option> like below  -->
+                        <option th:if="${isEdit}"
+                                th:selected="${existing.getSoftware().size()!=0 &&
+                                existing.getSoftware().contains(s)}"
+                                th:each="s : ${software}"
+                                th:value="${s.getId()}"
+                                th:text="${s.getName()}">
+                        </option>
+                        <option th:if="${!isEdit}"
+                                th:each="s : ${software}"
+                                th:value="${s.getId()}"
+                                th:text="${s.getName()}">
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group text-left col-sm-6">
+                    <img class="product-image" th:if="${isEdit}" th:src="${existing.getMainImage().getLocation()}">
+                    <hr th:if="${isEdit}"/>
+                    <label for="main-image">Main image</label>
+                    <input th:if="${!isEdit}" type="file" class="btn btn-primary mb-3" id="main-image" name="main-image" required/>
+                    <input th:if="${isEdit}" type="file" class="btn btn-primary mb-3" id="main-image" name="main-image"/>
+                    <label for="other-images">Other images</label>
+                    <input type="file" class="btn btn-primary" id="other-images" name="other-images" multiple="multiple"/>
+                    <div th:if="${isEdit}">
+                        <img th:each="i : ${existing.getImages()}" th:src="${i.getLocation()}" class="other-images"/>
+                    </div>
+
+                </div>
+            </div>
+            <hr/>
+            <button type="submit" class="btn btn-success btn-lg btn-block"
+                    th:text="${isEdit? 'Save changes':'Create'}"></button>
+            <a href="/profile" class="btn btn-primary btn-lg btn-block">Back</a>
+        </form>
+    </div>
+</section>

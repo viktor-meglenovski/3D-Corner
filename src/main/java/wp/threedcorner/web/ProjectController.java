@@ -1,14 +1,13 @@
 package wp.threedcorner.web;
 
+import com.sun.istack.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wp.threedcorner.model.Software;
 import wp.threedcorner.service.ProjectService;
+import wp.threedcorner.service.SoftwareService;
 
 import java.security.Principal;
 import java.util.List;
@@ -18,39 +17,47 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final SoftwareService softwareService;
 
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, SoftwareService softwareService) {
         this.projectService = projectService;
+        this.softwareService = softwareService;
     }
 
     @GetMapping("/create")
     public String getCreateProjectPage(Model model) {
-        //da se dodadat softverite
-        model.addAttribute("bodyContent", "home");
+        model.addAttribute("isEdit",false);
+        model.addAttribute("software",softwareService.findAll());
+        model.addAttribute("bodyContent", "project/add-edit-project");
         return "master-template";
     }
     @PostMapping("/create")
-    public String createProject(Model model,
-                                Principal principal,
+    public String createProject(Principal principal,
                                 @RequestParam String name,
                                 @RequestParam String description,
-                                @RequestParam List<Software> software,
-                                @RequestParam MultipartFile mainImage,
-                                @RequestParam List<MultipartFile> images) {
+                                @RequestParam List<Long> software,
+                                @RequestParam("main-image") MultipartFile mainImage,
+                                @RequestParam("other-images") @Nullable List<MultipartFile> images) {
         projectService.createProject(name,description,principal.getName(),mainImage,images,software);
-        model.addAttribute("bodyContent", "home");
-        return "master-template";
+        return "redirect:/profile";
     }
-    @GetMapping("/delete")
+    @GetMapping("/delete/{id}")
     public String deleteProject(Principal principal,
-                                @RequestParam Long projectId){
-        projectService.deleteProject(projectId,principal.getName());
-        //todo
-        return "master-template";
+                                @PathVariable Long id){
+        projectService.deleteProject(id,principal.getName());
+        return "redirect:/profile";
     }
-    @GetMapping("/edit")
-    public String editProject(){
-        //todo
+    @GetMapping("/edit/{id}")
+    public String editProject(Model model,
+                              Principal principal,
+                              @PathVariable Long id,
+                              @RequestParam String name,
+                              @RequestParam String description,
+                              @RequestParam List<Long> software,
+                              @RequestParam("main-image") MultipartFile mainImage,
+                              @RequestParam("other-images") List<MultipartFile> images){
+        projectService.editProject(id,principal.getName(),name,description,mainImage,images,software);
+        model.addAttribute("bodyContent", "project/view-project");
         return "master-template";
     }
     @GetMapping("/like")

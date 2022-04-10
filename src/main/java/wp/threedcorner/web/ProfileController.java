@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import wp.threedcorner.model.User;
+import wp.threedcorner.service.ProjectService;
 import wp.threedcorner.service.UserService;
 
 import java.security.Principal;
@@ -17,15 +18,18 @@ import java.security.Principal;
 @RequestMapping("/profile")
 public class ProfileController {
     private final UserService userService;
+    private final ProjectService projectService;
 
-    public ProfileController(UserService userService) {
+    public ProfileController(UserService userService, ProjectService projectService) {
         this.userService = userService;
+        this.projectService = projectService;
     }
 
     @GetMapping
     public String getMyProfile(Principal principal,Model model){
         User u=userService.findByUsername(principal.getName());
         model.addAttribute("user",u);
+        model.addAttribute("projects",projectService.findAllProjectsForUser(u));
         model.addAttribute("bodyContent","profile/my-profile");
         return "master-template";
     }

@@ -29,10 +29,11 @@ public class Project {
     List<Software> software;
     @OneToMany
     List<Comment> comments;
+    String location;
     public Project() {
     }
 
-    public Project(String name, String description, LocalDateTime created, User author, Image mainImage, List<Image> images, List<User> likes,List<Software> software) {
+    public Project(String name, String description, LocalDateTime created, User author, Image mainImage, List<Image> images, List<User> likes,List<Software> software,String location) {
         this.name = name;
         this.description = description;
         this.created = created;
@@ -41,5 +42,6 @@ public class Project {
         this.images = images;
         this.likes = likes;
         this.software=software;
+        this.location=location;
     }
 }
