@@ -1,0 +1,25 @@
+<style>
+    .small-profile-picture {
+        width: 60px;
+        border: 1px solid black;
+        border-radius: 100%;
+    }
+</style>
+
+<div xmlns:th="http://www.thymeleaf.org">
+    <h4 th:text="${'Total likes: '+likes.size()}"></h4>
+    <table class="tabela table table-stripped">
+        <thead>
+        <tr>
+            <th>Profile Picture</th>
+            <th>User Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${likes}">
+            <td><img class="small-profile-picture" th:src="${u.getProfilePicture().getLocation()}"/></td>
+            <td><a th:href="${'/user/view/'+u.getUsername()}"><h5 th:text="${u.getUsername()}"></h5></a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

@@ -54,6 +54,7 @@ public class ProjectServiceImpl implements ProjectService {
         p.setCreated(LocalDateTime.now());
         List<Software> softwares=softwareRepository.findAllById(software);
         p.setSoftware(softwares);
+        p.setImages(new ArrayList<>());
         projectRepository.save(p);
 
         //create a new folder for the project
@@ -126,14 +127,19 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void likeProject(Long projectId, String username) {
+    public boolean likeProject(Long projectId, String username) {
         Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
         User u=userRepository.getById(username);
-        if(p.getLikes().contains(u))
+        if(p.getLikes().contains(u)){
             p.getLikes().remove(u);
-        else
+            projectRepository.save(p);
+            return false;
+        }
+        else{
             p.getLikes().add(u);
-        projectRepository.save(p);
+            projectRepository.save(p);
+            return true;
+        }
     }
 
     @Override
@@ -166,6 +172,29 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<Project> findAllProjectsForUser(User user) {
         return projectRepository.findAllByAuthor(user);
+    }
+
+    @Override
+    public Project findById(Long id) {
+        return projectRepository.findById(id).orElseThrow(ProjectDoesNotExistException::new);
+    }
+
+    @Override
+    public List<User> getLikes(Long id) {
+        return projectRepository.findById(id).orElseThrow(ProjectDoesNotExistException::new).getLikes();
+    }
+
+    @Override
+    public boolean checkIfLikedByUser(String username, Long id) {
+        Project p=projectRepository.findById(id).orElseThrow(ProjectDoesNotExistException::new);
+        User u=userRepository.getById(username);
+        return p.getLikes().contains(u);
+    }
+
+    @Override
+    public List<Comment> getComments(Long id) {
+        Project p=projectRepository.findById(id).orElseThrow(ProjectDoesNotExistException::new);
+        return commentRepository.findAllByProject(p);
     }
 
 

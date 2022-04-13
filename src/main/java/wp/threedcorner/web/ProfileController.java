@@ -1,12 +1,10 @@
 package wp.threedcorner.web;
 
 import com.sun.istack.Nullable;
+import org.h2.engine.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wp.threedcorner.model.User;
 import wp.threedcorner.service.ProjectService;
@@ -30,7 +28,20 @@ public class ProfileController {
         User u=userService.findByUsername(principal.getName());
         model.addAttribute("user",u);
         model.addAttribute("projects",projectService.findAllProjectsForUser(u));
+        model.addAttribute("likes",userService.totalLikes(principal.getName()));
         model.addAttribute("bodyContent","profile/my-profile");
+        return "master-template";
+    }
+    @GetMapping("/view/{id}")
+    public String viewProfile(Principal principal, Model model, @PathVariable String id)
+    {
+        User u=userService.findByUsername(principal.getName());
+        if(u.getUsername().equals(id))
+            return "redirect:/profile";
+        model.addAttribute("user",u);
+        model.addAttribute("projects",projectService.findAllProjectsForUser(u));
+        model.addAttribute("likes",userService.totalLikes(id));
+        model.addAttribute("bodyContent","profile/view-profile");
         return "master-template";
     }
     @GetMapping("/edit")

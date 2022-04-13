@@ -14,27 +14,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import wp.threedcorner.repository.UserRepository;
 import wp.threedcorner.service.ImageService;
+import wp.threedcorner.service.ProjectService;
 import wp.threedcorner.service.UserService;
 import wp.threedcorner.config.Constants;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
-
-
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final ProjectService projectService;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, ImageService imageService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, ImageService imageService, ProjectService projectService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.imageService = imageService;
+        this.projectService = projectService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -84,5 +81,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAllUsers() {
         return userRepository.findByRole(Role.ROLE_USER);
+    }
+
+    @Override
+    public int totalLikes(String username) {
+        User u=findByUsername(username);
+        return projectService.findAllProjectsForUser(u).stream().mapToInt(x->x.getLikes().size()).sum();
     }
 }
