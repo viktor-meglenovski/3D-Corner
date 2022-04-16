@@ -3,47 +3,67 @@
         height:320px;
     }
     .project-image{
-        height:50px;
+        height:100px;
     }
 </style>
 
-<div class="container" xmlns:th="http://www.thymeleaf.org">
-    <div class="row border rounded mt-2 pb-3">
+<div class="container border rounded" xmlns:th="http://www.thymeleaf.org">
+    <div class="row mt-2 pb-3">
         <div class="col-sm-6 text-center">
             <h1 th:text="'@'+${user.getUsername()}"></h1>
             <h1 th:text="${user.getName()}+' '+${user.getSurname()}">+</h1>
-            <img class="img-thumbnail profile-image" th:src="${user.getProfilePicture().getLocation()}"/>
+            <img class="img-thumbnail profile-image zoomInImages" th:src="${user.getProfilePicture().getLocation()}"/>
             <hr/>
-            <h3 class="text-left" th:text="${'Projects: '+projects.size()}">Projects:</h3>
-            <h3 class="text-left" th:text="${'Likes:' +likes}">Likes:</h3>
-            <hr/>
-            <a href="/profile/edit" class="btn btn-primary btn-block btn-lg">Edit Profile</a>
+            <div class="row">
+                <div class="col-10 text-left">
+                    <h3>Projects:</h3>
+                </div>
+                <div class="col-2 text-left">
+                    <h3 th:text="${projects.size()}"></h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10 text-left">
+                    <h3>Likes:</h3>
+                </div>
+                <div class="col-2 text-left">
+                    <h3 th:text="${likes}"></h3>
+                </div>
+            </div>
         </div>
         <div class="col-sm-6">
             <h1 class="text-center">My Projects</h1>
-            <table class="table">
+            <h2 th:if="${projects.size()==0}">You do not have any projects yet! :(</h2>
+            <table class="table" th:if="${projects.size()>0}">
                 <thead>
-                <tr>
+                <tr class="text-center">
                     <th>Name</th>
                     <th>Image</th>
                     <th>Created on</th>
                     <th>Likes</th>
-                    <th>View Edit Delete</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="p:${projects}">
-                        <td th:text="${p.getName()}"></td>
-                        <td><img class="project-image" th:src="${p.getMainImage().getLocation()}"/></td>
-                        <td th:text="${p.getCreated()}"></td>
-                        <td th:text="${p.getLikes().size()}"></td>
-                        <td><a class="btn btn-primary btn-block" th:href="${'/project/view/'+p.getId()}">View</a>
-                            <a class="btn btn-secondary btn-block" th:href="${'/project/edit/'+p.getId()}">Edit</a>
+                    <tr th:each="p:${projects}" class="text-center">
+                        <td th:text="${p.getName()}" class="align-middle"></td>
+                        <td class="align-middle"><img class="project-image border rounded zoomInImages" th:src="${p.getMainImage().getLocation()}"/></td>
+                        <td th:text="${''+p.getCreated()}" class="align-middle"></td>
+                        <td th:text="${p.getLikes().size()}" class="align-middle"></td>
+                        <td class="align-middle"><a class="btn btn-primary btn-block" th:href="${'/project/view/'+p.getId()}">View</a>
+                            <a class="btn btn-warning btn-block text-white" th:href="${'/project/edit/'+p.getId()}">Edit</a>
                             <a class="btn btn-danger btn-block" th:href="${'/project/delete/'+p.getId()}">Delete</a></td>
                     </tr>
                 </tbody>
             </table>
-            <hr/>
+        </div>
+    </div>
+    <hr class="mt-0"/>
+    <div class="row mb-2">
+        <div class="col-6">
+            <a href="/profile/edit" class="btn btn-primary btn-block btn-lg">Edit Profile</a>
+        </div>
+        <div class="col-6">
             <a href="/project/create" class="btn btn-success btn-block btn-lg">Create a new project</a>
         </div>
     </div>

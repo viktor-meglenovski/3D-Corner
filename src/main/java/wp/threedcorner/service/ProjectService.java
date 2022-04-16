@@ -18,5 +18,5 @@ public interface ProjectService {
     public List<User> getLikes(Long id);
     public boolean checkIfLikedByUser(String username, Long id);
     public List<Comment> getComments(Long id);
-
+    public void deleteSotwareFromProjects(Software software);
 }

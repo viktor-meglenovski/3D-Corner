@@ -197,5 +197,13 @@ public class ProjectServiceImpl implements ProjectService {
         return commentRepository.findAllByProject(p);
     }
 
+    @Override
+    public void deleteSotwareFromProjects(Software software) {
+        projectRepository.findAllBySoftware(software).stream()
+                .forEach(x->{
+                    x.getSoftware().remove(software);
+                    projectRepository.save(x);});
+    }
+
 
 }

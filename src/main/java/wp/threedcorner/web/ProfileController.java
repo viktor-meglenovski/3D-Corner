@@ -35,8 +35,8 @@ public class ProfileController {
     @GetMapping("/view/{id}")
     public String viewProfile(Principal principal, Model model, @PathVariable String id)
     {
-        User u=userService.findByUsername(principal.getName());
-        if(u.getUsername().equals(id))
+        User u=userService.findByUsername(id);
+        if(principal.getName().equals(id))
             return "redirect:/profile";
         model.addAttribute("user",u);
         model.addAttribute("projects",projectService.findAllProjectsForUser(u));

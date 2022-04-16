@@ -3,44 +3,57 @@
         height:320px;
     }
     .project-image{
-        height:50px;
+        height:100px;
     }
 </style>
 
-<div class="container" xmlns:th="http://www.thymeleaf.org">
-    <div class="row border rounded mt-2 pb-3">
+<div class="container border rounded" xmlns:th="http://www.thymeleaf.org">
+    <div class="row mt-2 pb-3">
         <div class="col-sm-6 text-center">
             <h1 th:text="'@'+${user.getUsername()}"></h1>
             <h1 th:text="${user.getName()}+' '+${user.getSurname()}">+</h1>
-            <img class="img-thumbnail profile-image" th:src="${user.getProfilePicture().getLocation()}"/>
+            <img class="img-thumbnail profile-image zoomInImages" th:src="${user.getProfilePicture().getLocation()}"/>
             <hr/>
-            <h3 class="text-left">Projects:</h3>
-            <h3 class="text-left">Likes:</h3>
-            <hr/>
+            <div class="row">
+                <div class="col-10 text-left">
+                    <h3>Projects:</h3>
+                </div>
+                <div class="col-2 text-left">
+                    <h3 th:text="${projects.size()}"></h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10 text-left">
+                    <h3>Likes:</h3>
+                </div>
+                <div class="col-2 text-left">
+                    <h3 th:text="${likes}"></h3>
+                </div>
+            </div>
         </div>
         <div class="col-sm-6">
-            <h1 class="text-center" th:text="'@'+${user.getUsername()}+'\'s Projects'"></h1>
-            <table class="table">
+            <h1 class="text-center">My Projects</h1>
+            <h3 class="text-center mt-5" th:if="${projects.size()==0}" th:text="${'@'+user.getUsername()+' does not have any projects yet! :('}"></h3>
+            <table class="table" th:if="${projects.size()>0}">
                 <thead>
-                <tr>
+                <tr class="text-center">
                     <th>Name</th>
                     <th>Image</th>
                     <th>Created on</th>
                     <th>Likes</th>
-                    <th>View</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="p:${projects}">
-                        <td th:text="${p.getName()}"></td>
-                        <td><img class="project-image" th:src="${p.getMainImage().getLocation()}"/></td>
-                        <td th:text="${p.getCreated()}"></td>
-                        <td th:text="${p.getLikes().size()}"></td>
-                        <td><a class="btn btn-primary btn-block" th:href="${'/project/view/'+p.getId()}">View</a></td>
-                    </tr>
+                <tr th:each="p:${projects}" class="text-center">
+                    <td th:text="${p.getName()}" class="align-middle"></td>
+                    <td class="align-middle"><img class="project-image border rounded zoomInImages" th:src="${p.getMainImage().getLocation()}"/></td>
+                    <td th:text="${''+p.getCreated()}" class="align-middle"></td>
+                    <td th:text="${p.getLikes().size()}" class="align-middle"></td>
+                    <td class="align-middle"><a class="btn btn-primary btn-block" th:href="${'/project/view/'+p.getId()}">View</a></td>
+                </tr>
                 </tbody>
             </table>
-            <hr/>
         </div>
     </div>
 </div>

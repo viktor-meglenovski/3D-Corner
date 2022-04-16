@@ -8,6 +8,7 @@ import wp.threedcorner.model.Software;
 import wp.threedcorner.model.exceptions.SoftwareDoesNotExistException;
 import wp.threedcorner.repository.SoftwareRepository;
 import wp.threedcorner.service.ImageService;
+import wp.threedcorner.service.ProjectService;
 import wp.threedcorner.service.SoftwareService;
 
 import java.util.List;
@@ -16,10 +17,12 @@ import java.util.List;
 public class SoftwareServiceImpl implements SoftwareService {
     private final SoftwareRepository softwareRepository;
     private final ImageService imageService;
+    private final ProjectService projectService;
 
-    public SoftwareServiceImpl(SoftwareRepository softwareRepository, ImageService imageService) {
+    public SoftwareServiceImpl(SoftwareRepository softwareRepository, ImageService imageService, ProjectService projectService) {
         this.softwareRepository = softwareRepository;
         this.imageService = imageService;
+        this.projectService = projectService;
     }
 
     @Override
@@ -64,6 +67,7 @@ public class SoftwareServiceImpl implements SoftwareService {
     @Override
     public void deleteSoftware(Long softwareId) {
         Software s=softwareRepository.getById(softwareId);
+        projectService.deleteSotwareFromProjects(s);
         imageService.deletePhysicalImage(s.getLogo().getLocation());
         softwareRepository.deleteById(softwareId);
     }

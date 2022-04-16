@@ -6,7 +6,7 @@
 <section class="text-center" xmlns:th="http://www.thymeleaf.org">
     <div class="container col-xs-8 col-xl-6 border rounded mt-5 pb-3">
         <h1 class="h1 mt-3 mb-3">Manage with Users</h1>
-        <table class="table table-stripped">
+        <table class="table table-stripped" id="users-table">
             <thead>
             <tr>
                 <th>Username</th>
@@ -16,12 +16,12 @@
                 <th></th>
             </tr>
             </thead>
-            <tbody>
+            <tbody id="tbody-helper">
             <tr th:each="u: ${users}" >
-                <td class="align-middle" th:text="'@'+${u.getUsername()}"></td>
+                <td class="align-middle"><a th:href="${'/profile/view/'+u.getUsername()}" th:text="${'@'+u.getUsername()}"></a></td>
                 <td class="align-middle" th:text="${u.getName()}"></td>
                 <td class="align-middle" th:text="${u.getSurname()}"></td>
-                <td class="align-middle"><img class="profile-image" th:src="${u.getProfilePicture().getLocation()}"/></td>
+                <td class="align-middle"><img class="profile-image zoomInImages" th:src="${u.getProfilePicture().getLocation()}"/></td>
                 <td class="align-middle"><a class="btn btn-danger btn-block" th:href="${'/admin/users/delete/'+u.getUsername()}">Delete</a></td>
             </tr>
             </tbody>
@@ -30,3 +30,55 @@
         <a class="btn btn-primary btn-block btn-lg" href="/admin">Back</a>
     </div>
 </section>
+<script>
+    $("#users-table").DataTable({
+        "columns": [
+            {"name": "username", "orderable": false},
+            {"name": "name", "orderable": false},
+            {"name": "surname", "orderable": false},
+            {"name": "profilePicture", "orderable": false},
+            {"name": "options", "orderable": false}
+        ],
+        "ordering": false,
+        "bLengthChange": false,
+        "searching": false,
+        "pageLength": 4,
+        "bInfo": false,
+        "language": {
+            "paginate": {
+                "previous": "<<",
+                "next":">>"
+            }
+        }
+    });
+    $("#users-table_paginate").addClass(["col-12","text-center"]);
+</script>
+<script>
+    $(document).ready(function () {
+        $("#tbody-helper").on("mouseenter",".zoomInImages",function (e) {
+            $(this).css('cursor', 'pointer');
+            $(this).animate({ height: '+=15', width: '+=15' })
+        });
+        $("#tbody-helper").on("mouseleave",".zoomInImages",function (e) {
+            $(this).css('cursor', 'default');
+            $(this).animate({ height: '-=15', width: '-=15' });
+        });
+    })
+
+</script>
+<script>
+    $(document).ready(function () {
+        $("#tbody-helper").on("click",".zoomInImages",function (e) {
+            var slika = $(this).attr('src');
+            var modal = bootbox.dialog({
+                message: "<img style='width:100%;' src=" + slika + ">",
+                show: false,
+                onEscape: function () {
+                    modal.modal("hide");
+                }
+            });
+            $(".modal-dialog").addClass("bootboxBig");
+            modal.modal("show");
+        });
+    });
+</script>

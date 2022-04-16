@@ -8,7 +8,7 @@
 
 <div xmlns:th="http://www.thymeleaf.org">
     <h4 th:text="${'Total likes: '+likes.size()}"></h4>
-    <table class="tabela table table-stripped">
+    <table class="tabela table table-stripped" id="likes-table">
         <thead>
         <tr>
             <th>Profile Picture</th>
@@ -18,7 +18,7 @@
         <tbody>
         <tr th:each="u : ${likes}">
             <td><img class="small-profile-picture" th:src="${u.getProfilePicture().getLocation()}"/></td>
-            <td><a th:href="${'/user/view/'+u.getUsername()}"><h5 th:text="${u.getUsername()}"></h5></a></td>
+            <td><a th:href="${'/profile/view/'+u.getUsername()}"><h5 th:text="${u.getUsername()}"></h5></a></td>
         </tr>
         </tbody>
     </table>
