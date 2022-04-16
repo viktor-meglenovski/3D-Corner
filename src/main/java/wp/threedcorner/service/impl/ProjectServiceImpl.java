@@ -2,7 +2,6 @@ package wp.threedcorner.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import wp.threedcorner.config.Constants;
 import wp.threedcorner.model.*;
 import wp.threedcorner.model.exceptions.NoAuthorityException;
@@ -13,13 +12,12 @@ import wp.threedcorner.service.ImageService;
 import wp.threedcorner.service.ProjectService;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -49,30 +47,30 @@ public class ProjectServiceImpl implements ProjectService {
         p.setName(name);
         p.setDescription(description);
         p.setAuthor(author);
-        p.setLikes(new ArrayList<>());
+        p.setLikes(new HashSet<>());
         p.setComments(new ArrayList<>());
         p.setCreated(LocalDateTime.now());
-        List<Software> softwares=softwareRepository.findAllById(software);
+        Set<Software> softwares= new HashSet<>(softwareRepository.findAllById(software));
         p.setSoftware(softwares);
-        p.setImages(new ArrayList<>());
+        p.setImages(new HashSet<>());
         projectRepository.save(p);
 
         //create a new folder for the project
-        File f=new File(Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName());
+        File f=new File(Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName().replace(" ","_"));
         f.mkdir();
         p.setLocation(Constants.userRootPath+username+"/"+p.getId()+"_"+p.getName());
 
         //save the main image
-        Image mainImg=imageService.saveImage(mainImage,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName()+"/"+ mainImage.getOriginalFilename(),
-                "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName()+"/"+mainImage.getOriginalFilename());
+        Image mainImg=imageService.saveImage(mainImage,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+ mainImage.getOriginalFilename(),
+                "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+mainImage.getOriginalFilename());
         p.setMainImage(mainImg);
 
         //save the other images
         for(MultipartFile file: images){
             if(!file.isEmpty())
             {
-                Image otherImg=imageService.saveImage(file,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName()+"/"+ file.getOriginalFilename(),
-                        "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName()+"/"+file.getOriginalFilename());
+                Image otherImg=imageService.saveImage(file,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+ file.getOriginalFilename(),
+                        "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+file.getOriginalFilename());
                 p.getImages().add(otherImg);
             }
         }
@@ -82,8 +80,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Project getEditProject(String username, Long id) {
+        Project p=projectRepository.findById(id).orElseThrow(ProjectDoesNotExistException::new);
+        if(p.getAuthor().getUsername().equals(username)){
+            return p;
+        }else throw new NoAuthorityException();
+    }
+
+    @Override
     public void editProject(Long projectId, String username,String name, String description, MultipartFile mainImage, List<MultipartFile> images,List<Long> software) {
-        //todo - probably najkompliciran metod od site
 
         Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
         User u=userRepository.findByUsername(username).orElseThrow(UserDoesNotExistException::new);
@@ -92,20 +97,23 @@ public class ProjectServiceImpl implements ProjectService {
         p.setName(name);
         p.setDescription(description);
         p.setCreated(LocalDateTime.now());
-        List<Software> softwares=softwareRepository.findAllById(software);
+        Set<Software> softwares= new HashSet<>(softwareRepository.findAllById(software));
         p.setSoftware(softwares);
 
         //save the main image
-        imageService.deletePhysicalImage(p.getMainImage().getLocation());
-        Image mainImg=imageService.saveImage(mainImage,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName()+"/"+ mainImage.getOriginalFilename(),
-                "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName()+"/"+mainImage.getOriginalFilename());
-        p.setMainImage(mainImg);
+        if(!mainImage.isEmpty())
+        {
+            imageService.deletePhysicalImage(p.getMainImage().getLocation());
+            Image mainImg=imageService.saveImage(mainImage,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+ mainImage.getOriginalFilename(),
+                    "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+mainImage.getOriginalFilename());
+            p.setMainImage(mainImg);
+        }
 
         //save the other images
         for(MultipartFile file: images){
             if(!file.isEmpty()){
-                Image otherImg=imageService.saveImage(file,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName()+"/"+ file.getOriginalFilename(),
-                        "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName()+"/"+file.getOriginalFilename());
+                Image otherImg=imageService.saveImage(file,Constants.userRootPath +username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+ file.getOriginalFilename(),
+                        "/user_uploads/"+username+"/"+p.getId()+"_"+p.getName().replace(" ","_")+"/"+file.getOriginalFilename());
                 p.getImages().add(otherImg);
             }
         }
@@ -118,11 +126,23 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(Long projectId,String username) {
         Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
         if(p.getAuthor().getUsername().equals(username)){
+
+            Image mainImage=p.getMainImage();
+
+            //delete the images
+            for(Image image : p.getImages())
+                imageService.deleteImageFromDatabase(image);
+
+            //delete the folder
             File folder=new File(p.getLocation());
-            for(File f : folder.listFiles())
-                f.delete();
-            folder.delete();
+            if(folder.exists())
+            {
+                for(File f : folder.listFiles())
+                    f.delete();
+                folder.delete();
+            }
             projectRepository.delete(p);
+            imageService.deleteImageFromDatabase(mainImage);
         }else throw new NoAuthorityException();
     }
 
@@ -157,16 +177,19 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void deleteImage(String username, Long projectId, Long imageId) {
+    public Boolean deleteImage(String username, Long projectId, Long imageId) {
         User u=userRepository.getById(username);
         Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
         if(!u.equals(p.getAuthor()))
-            throw new NoAuthorityException();
+            return false;
         Image i=imageRepository.getById(imageId);
         imageService.deletePhysicalImage(i.getLocation());
-        if(p.getImages().contains(i))
+        if(p.getImages().contains(i)){
             p.getImages().remove(i);
+            imageService.deleteImageFromDatabase(i);
+        }
         projectRepository.save(p);
+        return true;
     }
 
     @Override
@@ -180,7 +203,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<User> getLikes(Long id) {
+    public Set<User> getLikes(Long id) {
         return projectRepository.findById(id).orElseThrow(ProjectDoesNotExistException::new).getLikes();
     }
 

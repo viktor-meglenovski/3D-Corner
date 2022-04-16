@@ -7,7 +7,7 @@
     }
 </style>
 
-<div class="container border rounded" xmlns:th="http://www.thymeleaf.org">
+<div class="container border rounded mt-2" xmlns:th="http://www.thymeleaf.org">
     <div class="row mt-2 pb-3">
         <div class="col-sm-6 text-center">
             <h1 th:text="'@'+${user.getUsername()}"></h1>
@@ -33,6 +33,7 @@
         </div>
         <div class="col-sm-6">
             <h1 class="text-center">My Projects</h1>
+            <hr th:if="${projects.size()==0}" />
             <h2 th:if="${projects.size()==0}">You do not have any projects yet! :(</h2>
             <table class="table" th:if="${projects.size()>0}">
                 <thead>
@@ -52,7 +53,9 @@
                         <td th:text="${p.getLikes().size()}" class="align-middle"></td>
                         <td class="align-middle"><a class="btn btn-primary btn-block" th:href="${'/project/view/'+p.getId()}">View</a>
                             <a class="btn btn-warning btn-block text-white" th:href="${'/project/edit/'+p.getId()}">Edit</a>
-                            <a class="btn btn-danger btn-block" th:href="${'/project/delete/'+p.getId()}">Delete</a></td>
+                            <a class="btn btn-danger btn-block deleteButton text-white" th:urlToSend="${'/project/delete/'+p.getId()}"
+                                                                             th:mainImage="${p.getMainImage().getLocation()}"
+                                                                             th:projectName="${p.getName()}">Delete</a></td>
                     </tr>
                 </tbody>
             </table>
@@ -68,3 +71,31 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $(".deleteButton").click(function () {
+            var urlToSend=$(this).attr("urlToSend");
+            var mainImage=$(this).attr("mainImage");
+            var projectName=$(this).attr("projectName");
+            bootbox.confirm({
+                title: "<div class='text-center'><h4>Are you sure that you want to delete the selected project?</h4><h5 class='text-danger'>This change will be permanent!</h5></div>",
+                message:"<div class='text-center'><h5>"+projectName+"</h5> <img style='width:400px;' src='"+mainImage+"'/></div>",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: "GET",
+                            url: urlToSend,
+                            success: function () {
+                                window.location.href="/profile";
+                            },
+                            error: function (response) {
+                                console.log("error");
+                            }
+                        })
+                    }
+                }
+            });
+
+        });
+    });
+</script>

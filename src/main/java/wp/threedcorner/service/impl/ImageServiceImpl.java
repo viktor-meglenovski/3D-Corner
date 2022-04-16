@@ -48,4 +48,9 @@ public class ImageServiceImpl implements ImageService {
         File f=new File(Constants.rootPath+location);
         f.delete();
     }
+
+    @Override
+    public void deleteImageFromDatabase(Image image) {
+        imageRepository.delete(image);
+    }
 }

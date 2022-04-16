@@ -3,7 +3,9 @@
         width: 150px;
     }
     .other-images{
-        width:50px;
+        width:90px;
+        border:1px solid lightgray;
+        border-radius: 5px;
     }
 </style>
 <section class="text-center" xmlns:th="http://www.thymeleaf.org">
@@ -21,7 +23,7 @@
 
                     <label for="name">Description</label>
                     <textarea class="form-control mb-3" id="description" name="description"
-                              th:value="(${isEdit} ? ${existing.getDescription()} : '')" required></textarea>
+                              th:text="(${isEdit} ? ${existing.getDescription()} : '')" required></textarea>
 
                     <label for="software">Software used</label><br/>
                     <select id="software" name="software" class="form-select" multiple required>
@@ -48,10 +50,14 @@
                     <input th:if="${isEdit}" type="file" class="btn btn-primary mb-3" id="main-image" name="main-image"/>
                     <label for="other-images">Other images</label>
                     <input type="file" class="btn btn-primary" id="other-images" name="other-images" multiple="multiple"/>
-                    <div th:if="${isEdit}">
-                        <img th:each="i : ${existing.getImages()}" th:src="${i.getLocation()}" class="other-images"/>
+                    <div th:if="${isEdit}" class="text-center">
+                        <span th:each="i : ${existing.getImages()}" class="position-relative par">
+                            <img  th:src="${i.getLocation()}" class="other-images mt-3"/>
+                            <span style="position:absolute;top:-23px;bottom:0;left:0;right:0;" class="text-left">
+                                <button type="button" th:imageId="${i.getId()}" class="imageDelete btn btn-sm btn-danger">X</button>
+                            </span>
+                        </span>
                     </div>
-
                 </div>
             </div>
             <hr/>
@@ -59,5 +65,36 @@
                     th:text="${isEdit? 'Save changes':'Create'}"></button>
             <a href="/profile" class="btn btn-primary btn-lg btn-block">Back</a>
         </form>
+        <input th:if="${isEdit}" type="hidden" th:value="${existing.getId()}" id="projectIdInput"/>
     </div>
 </section>
+<script>
+    $(document).ready(function () {
+        var projectId=$("#projectIdInput").attr("value");
+        $(".imageDelete").click(function () {
+            var imgUrl=$(this).parent().siblings(".other-images").attr("src");
+            var link = $(this);
+            bootbox.confirm({
+                title: "<div class='text-center'><h4>Are you sure that you want to delete the selected image?</h4><h5 class='text-danger'>This change will be permanent!</h5></div>",
+                message:"<div class='text-center'> <img style='width:400px;' src='"+imgUrl+"'/></div>",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: "GET",
+                            url: "/project/deleteimage/",
+                            data: { projectId: projectId,
+                                imageId: link.attr("imageId")},
+                            success: function () {
+                                link.parent().parent().remove().draw();
+                            },
+                            error: function (response) {
+                                console.log("error");
+                            }
+                        })
+                    }
+                }
+            });
+
+        });
+    });
+</script>

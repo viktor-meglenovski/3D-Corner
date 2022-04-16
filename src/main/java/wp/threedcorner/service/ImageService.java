@@ -9,4 +9,5 @@ public interface ImageService {
     public Image getDefaultUserImage();
     public Image saveImage(MultipartFile image, String path, String location);
     public void deletePhysicalImage(String location);
+    public void deleteImageFromDatabase(Image image);
 }

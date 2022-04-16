@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import wp.threedcorner.model.Project;
 import wp.threedcorner.model.dto.LikeProjectDto;
 import wp.threedcorner.service.CommentService;
 import wp.threedcorner.service.ProjectService;
@@ -60,6 +61,15 @@ public class ProjectController {
         return "redirect:/profile";
     }
     @GetMapping("/edit/{id}")
+    public String editProject(Principal principal, @PathVariable Long id, Model model){
+        Project toEdit=projectService.getEditProject(principal.getName(),id);
+        model.addAttribute("existing",toEdit);
+        model.addAttribute("isEdit",true);
+        model.addAttribute("software",softwareService.findAll());
+        model.addAttribute("bodyContent", "project/add-edit-project");
+        return "master-template";
+    }
+    @PostMapping("/edit/{id}")
     public String editProject(Model model,
                               Principal principal,
                               @PathVariable Long id,
@@ -69,8 +79,7 @@ public class ProjectController {
                               @RequestParam("main-image") MultipartFile mainImage,
                               @RequestParam("other-images") List<MultipartFile> images){
         projectService.editProject(id,principal.getName(),name,description,mainImage,images,software);
-        model.addAttribute("bodyContent", "project/view-project");
-        return "master-template";
+        return "redirect:/project/view/"+id;
     }
     @GetMapping(value = "/like/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody LikeProjectDto likeProject(Principal principal, @PathVariable Long id){
@@ -78,6 +87,10 @@ public class ProjectController {
         int likes=projectService.getNumberOfLikes(id);
         LikeProjectDto result=new LikeProjectDto(isLikedNow,likes);
         return result;
+    }
+    @GetMapping(value = "/deleteimage", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody Boolean deleteImage(Principal principal, @RequestParam Long projectId, @RequestParam Long imageId){
+        return projectService.deleteImage(principal.getName(),projectId,imageId);
     }
     @GetMapping("/likes/{id}") public String getLikes(Model model, @PathVariable Long id){
         model.addAttribute("likes",projectService.getLikes(id));
