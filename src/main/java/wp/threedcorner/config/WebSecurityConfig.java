@@ -1,5 +1,6 @@
 package wp.threedcorner.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -15,6 +16,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
     private final CustomUsernamePasswordAuthenticationProvider authenticationProvider;
+    @Autowired
+    private LoginSuccessHandler loginSuccessHandler;
 
     public WebSecurityConfig(PasswordEncoder passwordEncoder,
                              CustomUsernamePasswordAuthenticationProvider authenticationProvider) {
@@ -27,7 +30,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/", "/home", "/assets/**", "/register", "/static/**").permitAll()
+                .antMatchers("/login", "/assets/**", "/register", "/static/**").permitAll()
+                .antMatchers("/home","/project/**","/profile/**","/search/**").hasRole("USER")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
@@ -35,7 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .failureUrl("/login?error=BadCredentials")
-                .defaultSuccessUrl("/profile", true)
+                .successHandler(loginSuccessHandler)
                 .and()
                 .logout()
                 .logoutUrl("/logout")

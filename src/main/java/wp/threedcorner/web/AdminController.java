@@ -70,4 +70,9 @@ public class AdminController {
         model.addAttribute("bodyContent", "admin/users");
         return "admin-master-template";
     }
+    @GetMapping("/users/delete/{id}")
+    public String deleteUser(Model model, @PathVariable String id){
+        userService.deleteUser(id);
+        return "redirect:/admin/users";
+    }
 }

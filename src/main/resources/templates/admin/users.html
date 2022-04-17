@@ -22,7 +22,7 @@
                 <td class="align-middle" th:text="${u.getName()}"></td>
                 <td class="align-middle" th:text="${u.getSurname()}"></td>
                 <td class="align-middle"><img class="profile-image zoomInImages" th:src="${u.getProfilePicture().getLocation()}"/></td>
-                <td class="align-middle"><a class="btn btn-danger btn-block" th:href="${'/admin/users/delete/'+u.getUsername()}">Delete</a></td>
+                <td class="align-middle"><a class="btn btn-danger btn-block deleteButton text-white" th:username="${u.getUsername()}" th:profilePicture="${u.getProfilePicture().getLocation()}" th:urlToSend="${'/admin/users/delete/'+u.getUsername()}">Delete</a></td>
             </tr>
             </tbody>
         </table>
@@ -79,6 +79,34 @@
             });
             $(".modal-dialog").addClass("bootboxBig");
             modal.modal("show");
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#tbody-helper").on("click",".deleteButton",function (e) {
+            var urlToSend=$(this).attr("urlToSend");
+            var profilePicture=$(this).attr("profilePicture");
+            var username=$(this).attr("username");
+            bootbox.confirm({
+                title: "<div class='text-center'><h4>Are you sure that you want to delete the selected user?</h4><h5 class='text-danger'>This change will be permanent!</h5></div>",
+                message:"<div class='text-center'><h5>@"+username+"</h5> <img style='width:400px;' src='"+profilePicture+"'/></div>",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: "GET",
+                            url: urlToSend,
+                            success: function () {
+                                window.location.href="/admin/users";
+                            },
+                            error: function (response) {
+                                console.log("error");
+                            }
+                        })
+                    }
+                }
+            });
+
         });
     });
 </script>

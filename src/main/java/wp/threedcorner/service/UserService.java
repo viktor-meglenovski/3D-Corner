@@ -14,4 +14,5 @@ public interface UserService extends UserDetailsService {
     User editProfile(String username, String name, String surname, MultipartFile profilePicture);
     List<User> findAllUsers();
     int totalLikes(String username);
+    void deleteUser(String id);
 }

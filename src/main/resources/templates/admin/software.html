@@ -22,7 +22,8 @@
             <tr th:each="s: ${software}" >
                 <td class="align-middle text-left" th:text="${s.getName()}"></td>
                 <td class="align-middle"><img class="software-image zoomInImages" th:src="${s.getLogo().getLocation()}"/></td>
-                <td class="align-middle"><a class="btn btn-primary btn-block" th:href="${'/admin/software/edit/'+s.getId()}">Edit</a> <a class="btn btn-danger btn-block" th:href="${'/admin/software/delete/'+s.getId()}">Delete</a></td>
+                <td class="align-middle"><a class="btn btn-primary btn-block" th:href="${'/admin/software/edit/'+s.getId()}">Edit</a>
+                    <a class="btn btn-danger btn-block deleteButton text-white" th:logo="${s.getLogo().getLocation()}" th:softwareName="${s.getName()}" th:urlToSend="${'/admin/software/delete/'+s.getId()}">Delete</a></td>
             </tr>
             </tbody>
         </table>
@@ -79,6 +80,34 @@
             });
             $(".modal-dialog").addClass("bootboxBig");
             modal.modal("show");
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#tbody-helper").on("click",".deleteButton",function (e) {
+            var urlToSend=$(this).attr("urlToSend");
+            var logo=$(this).attr("logo");
+            var softwareName=$(this).attr("softwareName");
+            bootbox.confirm({
+                title: "<div class='text-center'><h4>Are you sure that you want to delete the selected project?</h4><h5 class='text-danger'>This change will be permanent!</h5></div>",
+                message:"<div class='text-center'><h5>"+softwareName+"</h5> <img style='width:400px;' src='"+logo+"'/></div>",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: "GET",
+                            url: urlToSend,
+                            success: function () {
+                                window.location.href="/admin/software";
+                            },
+                            error: function (response) {
+                                console.log("error");
+                            }
+                        })
+                    }
+                }
+            });
+
         });
     });
 </script>

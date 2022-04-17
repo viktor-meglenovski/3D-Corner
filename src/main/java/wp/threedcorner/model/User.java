@@ -49,6 +49,10 @@ public class User implements UserDetails {
         return Collections.singletonList(role);
     }
 
+    public boolean hasRole(String roleName) {
+        return this.role.equals(Role.valueOf(roleName));
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return isAccountNonExpired;

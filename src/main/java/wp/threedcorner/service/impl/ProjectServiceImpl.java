@@ -125,7 +125,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProject(Long projectId,String username) {
         Project p=projectRepository.findById(projectId).orElseThrow(ProjectDoesNotExistException::new);
-        if(p.getAuthor().getUsername().equals(username)){
+        if(p.getAuthor().getUsername().equals(username) || username.equals("admin")){
 
             Image mainImage=p.getMainImage();
 

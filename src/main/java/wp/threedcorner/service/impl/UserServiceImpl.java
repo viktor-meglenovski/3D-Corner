@@ -2,6 +2,7 @@ package wp.threedcorner.service.impl;
 
 import org.springframework.web.multipart.MultipartFile;
 import wp.threedcorner.model.Image;
+import wp.threedcorner.model.Project;
 import wp.threedcorner.model.User;
 import wp.threedcorner.model.enumerations.Role;
 import wp.threedcorner.model.exceptions.InvalidUsernameOrPasswordException;
@@ -68,6 +69,8 @@ public class UserServiceImpl implements UserService {
         u.setName(name);
         u.setSurname(surname);
         if(!profilePicture.isEmpty()){
+            if(u.getProfilePicture().getId()!=1)
+                imageService.deletePhysicalImage(u.getProfilePicture().getLocation());
             Image image=imageService.saveImage(profilePicture,
                     Constants.userRootPath +username+"/"+ profilePicture.getOriginalFilename(),
                     "/user_uploads/"+username+"/"+profilePicture.getOriginalFilename());
@@ -87,5 +90,26 @@ public class UserServiceImpl implements UserService {
     public int totalLikes(String username) {
         User u=findByUsername(username);
         return projectService.findAllProjectsForUser(u).stream().mapToInt(x->x.getLikes().size()).sum();
+    }
+
+    @Override
+    public void deleteUser(String id) {
+        User u=findByUsername(id);
+        //delete all projects
+        List<Project> projects=projectService.findAllProjectsForUser(u);
+        for(Project p : projects)
+            projectService.deleteProject(p.getId(),"admin");
+
+        //delete user folder
+        File folder=new File("src//main//resources//static//user_uploads//"+u.getUsername());
+        if(folder.exists())
+        {
+            for(File f : folder.listFiles())
+                f.delete();
+            folder.delete();
+        }
+
+        //delete user from database
+        userRepository.delete(u);
     }
 }
