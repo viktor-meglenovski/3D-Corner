@@ -35,7 +35,7 @@
             <h1 class="text-center">My Projects</h1>
             <hr th:if="${projects.size()==0}" />
             <h2 th:if="${projects.size()==0}">You do not have any projects yet! :(</h2>
-            <table class="table" th:if="${projects.size()>0}">
+            <table class="table" th:if="${projects.size()>0}" id="project-table">
                 <thead>
                 <tr class="text-center">
                     <th>Name</th>
@@ -45,10 +45,10 @@
                     <th></th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody-helper">
                     <tr th:each="p:${projects}" class="text-center">
                         <td th:text="${p.getName()}" class="align-middle"></td>
-                        <td class="align-middle"><img class="project-image border rounded zoomInImages" th:src="${p.getMainImage().getLocation()}"/></td>
+                        <td class="align-middle"><img class="project-image border rounded zoomInImagesDatatables" th:src="${p.getMainImage().getLocation()}"/></td>
                         <td th:text="${''+p.getCreated()}" class="align-middle"></td>
                         <td th:text="${p.getLikes().size()}" class="align-middle"></td>
                         <td class="align-middle"><a class="btn btn-primary btn-block" th:href="${'/project/view/'+p.getId()}">View</a>
@@ -73,7 +73,7 @@
 </div>
 <script>
     $(document).ready(function () {
-        $(".deleteButton").click(function () {
+        $("#tbody-helper").on("click",".deleteButton",function (e) {
             var urlToSend=$(this).attr("urlToSend");
             var mainImage=$(this).attr("mainImage");
             var projectName=$(this).attr("projectName");
@@ -96,6 +96,59 @@
                 }
             });
 
+        });
+    });
+</script>
+<link rel="stylesheet" src="//cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"/>
+<script src="//cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    $("#project-table").DataTable({
+        "columns": [
+            {"name": "name", "orderable": false},
+            {"name": "image", "orderable": false},
+            {"name": "createdOn", "orderable": false},
+            {"name": "likes", "orderable": false},
+            {"name": "options", "orderable": false},
+        ],
+        "ordering": false,
+        "bLengthChange": false,
+        "searching": false,
+        "pageLength": 3,
+        "bInfo": false,
+        "language": {
+            "paginate": {
+                "previous": "<<",
+                "next":">>"
+            }
+        }
+    });
+    $("#project-table_paginate").addClass(["text-center","col-12"]);
+</script>
+<script>
+    $(document).ready(function () {
+        $("#tbody-helper").on("mouseenter",".zoomInImagesDatatables",function (e) {
+            $(this).css('cursor', 'pointer');
+            $(this).animate({ height: '+=15', width: '+=15' })
+        });
+        $("#tbody-helper").on("mouseleave",".zoomInImagesDatatables",function (e) {
+            $(this).css('cursor', 'default');
+            $(this).animate({ height: '-=15', width: '-=15' });
+        });
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        $("#tbody-helper").on("click",".zoomInImagesDatatables",function (e) {
+            var slika = $(this).attr('src');
+            var modal = bootbox.dialog({
+                message: "<img style='width:100%;' src=" + slika + ">",
+                show: false,
+                onEscape: function () {
+                    modal.modal("hide");
+                }
+            });
+            $(".modal-dialog").addClass("bootboxBig");
+            modal.modal("show");
         });
     });
 </script>

@@ -1,11 +1,14 @@
 <header xmlns:th="http://www.thymeleaf.org">
     <div class="container-fluid bg-dark" style="height:50px;">
-        <div class="container">
             <div class="row">
-                <div class="col-8">
+                <div class="col-4">
                     <div class="row">
-                        <a class="text-white h2 col-6" href="/">3D Corner</a>
-                        <form class="col-6 mt-1" sec:authorize="isAuthenticated()" action="/search" method="post">
+                        <a class="text-white h2 col-8" href="/" style="text-decoration: none;">3D Corner</a>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="row justify-content-center">
+                        <form class="col-10 mt-1" sec:authorize="isAuthenticated()" action="/search" method="get" onsubmit="return validateSearchForm()">
                             <div class="input-group">
                                 <input type="text" class="form-control" placeholder="Search..." name="searchText" id="searchText">
                                 <div class="input-group-append">
@@ -16,17 +19,27 @@
                             </div>
                         </form>
                     </div>
+
                 </div>
-                <div class="col-4 text-right">
-                    <div class="row">
-                        <a sec:authorize="isAuthenticated()" class="btn btn-success col-5 mr-2 mt-1 h1" href="/profile">My Profile</a>
-                        <a sec:authorize="isAuthenticated()" class="btn btn-light col-5 mt-1 h1" href="/logout">Log Out</a>
-                        <a sec:authorize="!isAuthenticated()" class="btn btn-light col-5 mr-2 mt-1 h1" href="/login">Log In</a>
-                        <a sec:authorize="!isAuthenticated()" class="btn btn-light col-5 mt-1 h1" href="/register">Register</a>
+                <div class="col-4">
+                    <div class="row col-12 justify-content-end mr-0 ml-0 pr-0">
+                        <a sec:authorize="isAuthenticated()" class="btn btn-success col-3 mt-1 h1" href="/profile">My Profile</a>
+                        <a sec:authorize="isAuthenticated()" class="btn btn-light col-3 ml-2 mt-1 h1" href="/logout">Log Out</a>
+                        <a sec:authorize="!isAuthenticated()" class="btn btn-light col-2 mt-1 h1" href="/login">Log In</a>
+                        <a sec:authorize="!isAuthenticated()" class="btn btn-light col-2 mt-1 h1" href="/register">Register</a>
                     </div>
                 </div>
             </div>
-        </div>
-
     </div>
 </header>
+<script>
+    function validateSearchForm() {
+        var text=$("#searchText").val();
+        if(text==null || text==''){
+            bootbox.alert({
+                message: "<h4>Please enter some text in the search field!</h4>",
+            });
+            return false;
+        }
+    }
+</script>
