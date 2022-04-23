@@ -8,6 +8,8 @@
         border-radius: 5px;
     }
 </style>
+<link rel="stylesheet" href="/multiselect/dist/css/bootstrap-multiselect.css" type="text/css">
+<script type="text/javascript" src="/multiselect/dist/js/bootstrap-multiselect.js"></script>
 <section class="text-center" xmlns:th="http://www.thymeleaf.org">
     <div class="container col-xs-8 col-xl-6 border rounded mt-5 pb-3">
         <form method="post" th:action="${isEdit==false ? '/project/create':'/project/edit/'+existing.getId()}"
@@ -26,7 +28,7 @@
                               th:text="(${isEdit} ? ${existing.getDescription()} : '')" required></textarea>
 
                     <label for="software">Software used</label><br/>
-                    <select id="software" name="software" class="form-select" multiple required>
+                    <select id="software" name="software" multiple required>
                         <!-- For each category you should have one <option> like below  -->
                         <option th:if="${isEdit}"
                                 th:selected="${existing.getSoftware().size()!=0 &&
@@ -98,3 +100,8 @@
         });
     });
 </script>
+  <script type="text/javascript">
+                                $(document).ready(function() {
+        $('#software').multiselect();
+    });
+    </script>

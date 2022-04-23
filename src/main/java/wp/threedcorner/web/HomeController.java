@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import wp.threedcorner.service.SearchService;
 
+import java.security.Principal;
+
 @Controller
 @RequestMapping(value = {"/", "/home"})
 public class HomeController {
@@ -16,9 +18,14 @@ public class HomeController {
     }
 
     @GetMapping
-    public String getHomePage(Model model) {
+    public String getHomePage(Principal principal, Model model) {
+        if(principal!=null){
         model.addAttribute("projects",searchService.sortByLikes());
         model.addAttribute("bodyContent", "home");
+        }
+        else{
+            model.addAttribute("bodyContent", "home-all");
+        }
         return "master-template";
     }
 
