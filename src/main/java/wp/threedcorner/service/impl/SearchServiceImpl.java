@@ -42,6 +42,6 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<Project> sortByLikes() {
-        return projectRepository.findAll().stream().sorted(Comparator.comparing((Project x)->x.getLikes().size()).reversed()).collect(Collectors.toList());
+        return projectRepository.findAll().stream().sorted(Comparator.comparing((Project x)->x.getLikes().size()).reversed()).limit(12).collect(Collectors.toList());
     }
 }

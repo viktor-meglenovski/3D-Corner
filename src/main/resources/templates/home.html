@@ -3,17 +3,19 @@
         height:320px;
     }
     .project-image{
-        height:180px;
+        height:220px;
     }
 </style>
 <div class="container-fluid rounded mt-2 col-12" xmlns:th="http://www.thymeleaf.org">
-    <div class="row mt-2 pb-3 col-10 offset-1 justify-content-md-center">
-            <div class="card col-auto" th:each="p:${projects}" >
+    <div class="row mt-2 pb-3 col-12 justify-content-md-center">
+            <div class="card col-2" th:each="p:${projects}" >
                 <img class="card-img-top project-image zoomInImages mb-0 mt-1 img-thumbnail" th:src="${p.getMainImage().getLocation()}">
                 <div class="card-body mt-0 p-1">
                     <h5 class="card-title text-center mt-0" th:text="${p.getName()}"></h5>
-                    <p class="card-text btn btn-primary btn-block mb-1 mt-1" th:text="${'Likes: '+ p.getLikes().size()}"></p>
-                    <a class="btn btn-success btn-block mb-1 mt-1" th:href="${'/project/view/'+p.getId()}">View</a>
+                    <div class="row">
+                        <p class="card-text btn btn-primary btn-block mb-1 mt-1 col-6" th:text="${'Likes: '+ p.getLikes().size()}"></p>
+                        <a class="btn btn-success btn-block mb-1 mt-1 col-4 offset-1" th:href="${'/project/view/'+p.getId()}">View</a>
+                    </div>
                 </div>
             </div>
     </div>

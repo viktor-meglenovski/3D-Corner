@@ -18,7 +18,7 @@
         <tbody>
         <tr th:each="u : ${likes}">
             <td><img class="small-profile-picture" th:src="${u.getProfilePicture().getLocation()}"/></td>
-            <td><a th:href="${'/profile/view/'+u.getUsername()}"><h5 th:text="${u.getUsername()}"></h5></a></td>
+            <td><a th:href="${'/profile/view/'+u.getUsername()}"><h5 th:text="${'@'+u.getUsername()}"></h5></a></td>
         </tr>
         </tbody>
     </table>
