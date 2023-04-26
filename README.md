@@ -1,5 +1,3 @@
-![License](https://img.shields.io/github/license/viktor-meglenovski/3D-Corner.svg?style=for-the-badge) ![Repo Size](https://img.shields.io/github/languages/code-size/viktor-meglenovski/3D-Corner.svg?style=for-the-badge) ![TOP_LANGUAGE](https://img.shields.io/github/languages/top/viktor-meglenovski/3D-Corner.svg?style=for-the-badge) ![FORKS](https://img.shields.io/github/forks/viktor-meglenovski/3D-Corner.svg?style=for-the-badge&social) ![Stars](https://img.shields.io/github/stars/viktor-meglenovski/3D-Corner.svg?style=for-the-badge)
-    
 # Проектна задача по предметот Веб Програмирање
 # ФИНКИ 2021/2022
 ## Виктор Мегленовски - 191001
